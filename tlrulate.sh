@@ -34,6 +34,7 @@ max ()
   fi
 }
 
+MAX_JOBS=10
 number="$1"
 book="\/book\/\d+/\d+\/ready_new"
 
@@ -116,6 +117,11 @@ for i in $chapters; do
     counter=$(("$counter" + 1))
     continue; 
   fi
+
+  if (( "$(jobs | rg "Running" | wc -l)" >= "$MAX_JOBS" )); then
+    sleep 1;
+  fi
+
   chapter_link=$(get_link "$i")
   chapter_name=$(get_name "$i")
 
