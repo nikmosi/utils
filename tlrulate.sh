@@ -103,6 +103,7 @@ if (( "$from" > "$to" )); then
   exit 1
 fi
 
+len=${#load_count}
 counter=0
 for i in $chapters; do 
   if (( "$counter" > "$to" )); then break; fi
@@ -114,9 +115,11 @@ for i in $chapters; do
   chapter_name=$(get_name "$i")
 
   chapter_html=$(curl --silent "$chapter_link")
-  echo "$chapter_html" | wkhtmltopdf --encoding UTF-8 -q - "${counter}: ${chapter_name}.pdf"
+  num=$(printf %0"$len"d "$counter")
+  name="${num}: ${chapter_name}.pdf"
+  echo "$chapter_html" | wkhtmltopdf --encoding UTF-8 -q - "$name" &> /dev/null
 
-  echo "$(("$counter" - "$from" + 1))/$(("$to" - "$from" + 1)) saved: $counter ${chapter_name}.pfd"
+  echo "$(printf "% ${len}d" "$(("$counter" - "$from" + 1))" )/$(("$to" - "$from" + 1)) | $name"
 
   counter=$(("$counter" + 1))
 done
