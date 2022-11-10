@@ -10,9 +10,10 @@ get_name ()
   echo "$1" | rg -P -o "\>.*" | sed "s/>//"
 }
 
-print_status_load ()
+# loaded_count / count / name
+print_status_load () 
 {
-  echo "$(printf "% ${len}d" "$(("$counter" - "$from" + 1))" )/$(("$to" - "$from" + 1)) | '$name'"
+  printf "% ${len}d/%s | '%s'\n" "$1" "$2" "$3"
 }
 
 min ()
@@ -111,6 +112,7 @@ if (( "$from" > "$to" )); then
 fi
 
 len=${#load_count}
+count_to_load="$(("$to" - "$from" + 1))" 
 counter=0
 for i in $chapters; do 
   if (( "$counter" > "$to" )); then break; fi
@@ -129,7 +131,8 @@ for i in $chapters; do
   chapter_html=$(curl --silent "$chapter_link")
   num=$(printf %0"$len"d "$counter")
   name="${num}: ${chapter_name}.pdf"
-  echo "$chapter_html" | ( wkhtmltopdf --encoding UTF-8 -q - "$name" &> /dev/null; print_status_load ) &
+  echo "$chapter_html" | ( wkhtmltopdf --encoding UTF-8 -q - "$name" &> /dev/null; \
+    print_status_load "$(("$counter" - "$from" + 1))" "$count_to_load" "$name" ) &
 
   counter=$(("$counter" + 1))
 done
