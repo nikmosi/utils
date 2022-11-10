@@ -114,9 +114,9 @@ for i in $chapters; do
   chapter_name=$(get_name "$i")
 
   chapter_html=$(curl --silent "$chapter_link")
-  echo "$chapter_html" | wkhtmltopdf --encoding UTF-8 -q - "${chapter_name}.pdf"
+  echo "$chapter_html" | wkhtmltopdf --encoding UTF-8 -q - "${counter}: ${chapter_name}.pdf"
 
-  echo "$(("$counter" - "$from"))/$(("$to" - "$from" + 1)) saved: $counter ${chapter_name}.pfd"
+  echo "$(("$counter" - "$from" + 1))/$(("$to" - "$from" + 1)) saved: $counter ${chapter_name}.pfd"
 
   counter=$(("$counter" + 1))
 done
