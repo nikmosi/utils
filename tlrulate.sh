@@ -11,6 +11,11 @@ get_name ()
   echo "$1" | rg -P -o "\>.*" | sed "s/>//"
 }
 
+print_status_load ()
+{
+  echo "$(printf "% ${len}d" "$(("$counter" - "$from" + 1))" )/$(("$to" - "$from" + 1)) | '$name'"
+}
+
 min ()
 {
   if (( "$1" > "$2" )); then 
@@ -117,9 +122,11 @@ for i in $chapters; do
   chapter_html=$(curl --silent "$chapter_link")
   num=$(printf %0"$len"d "$counter")
   name="${num}: ${chapter_name}.pdf"
-  echo "$chapter_html" | wkhtmltopdf --encoding UTF-8 -q - "$name" &> /dev/null
-
-  echo "$(printf "% ${len}d" "$(("$counter" - "$from" + 1))" )/$(("$to" - "$from" + 1)) | $name"
+  echo "$chapter_html" | ( wkhtmltopdf --encoding UTF-8 -q - "$name" &> /dev/null; print_status_load ) &
 
   counter=$(("$counter" + 1))
+done
+
+while [ -n "$(jobs | rg -o "Running")" ]; do
+  sleep 1;
 done
