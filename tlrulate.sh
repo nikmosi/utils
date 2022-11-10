@@ -1,6 +1,5 @@
 #!/bin/bash
 
-IFS=$'\n'
 get_link () 
 {
   echo "$1" | rg -P -o "'[^\>]+" | sed "s/'//g" | sed "s/^/https:\/\/tl.rulate.ru/"
@@ -35,6 +34,8 @@ max ()
 }
 
 MAX_JOBS=10
+IFS=$'\n'
+
 number="$1"
 book="\/book\/\d+/\d+\/ready_new"
 
