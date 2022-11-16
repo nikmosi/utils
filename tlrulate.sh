@@ -40,7 +40,10 @@ IFS=$'\n'
 number="$1"
 book="\/book\/\d+/\d+\/ready_new"
 
-if [ -z "$number" ]; then exit 1; fi
+if [ -z "$number" ]; then
+  echo "book number didn't recive. " >&2
+  exit 1;
+fi
 
 main_page=$(curl --silent "https://tl.rulate.ru/book/$number")
 chapters=$(echo "$main_page" | rg -P -o "href='$book'\>[^\<]+")
