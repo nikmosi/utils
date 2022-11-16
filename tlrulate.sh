@@ -40,6 +40,11 @@ IFS=$'\n'
 number="$1"
 book="\/book\/\d+/\d+\/ready_new"
 
+if ! [[ "$1" =~ ^\d+$ ]]; then
+  echo "book number is NaN. "
+  exit 1;
+fi
+
 if [ -z "$number" ]; then
   echo "book number didn't recive. " >&2
   exit 1;
