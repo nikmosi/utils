@@ -1,5 +1,15 @@
 #!/bin/bash
 
+show_help ()
+{
+cat <<- _EOF_
+  tlrulate --help
+    show this text.
+  tlrulate <book number>
+    start loading dialoge.
+_EOF_
+}
+
 get_link () 
 {
   echo "$1" | rg -P -o "'[^\>]+" | sed "s/'//g" | sed "s/^/https:\/\/tl.rulate.ru/"
@@ -39,6 +49,11 @@ IFS=$'\n'
 
 number="$1"
 book="\/book\/\d+/\d+\/ready_new"
+
+if [[ "$1" =~ ^-h$ || "$1" =~ ^--help$ ]]; then
+  show_help
+  exit
+fi
 
 if ! [[ "$1" =~ ^\d+$ ]]; then
   echo "book number is NaN. "
