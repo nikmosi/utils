@@ -55,7 +55,7 @@ if [[ "$1" =~ ^-h$ || "$1" =~ ^--help$ ]]; then
   exit
 fi
 
-if ! [[ "$1" =~ ^\d+$ ]]; then
+if ! [[ "$1" =~ ^[0-9]+$ ]]; then
   echo "book number is NaN. " >&2
   exit 1;
 fi
