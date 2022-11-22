@@ -69,12 +69,14 @@ main_page=$(curl --silent "https://tl.rulate.ru/book/$number")
 chapters=$(echo "$main_page" | rg -P -o "href='$book'\>[^\<]+")
 rulate_count=$(echo "$main_page" | rg -A5 "Размер перевода:" | head -n 3 | tail -n 1 | rg -P -o "\d(\d| )+" | sed "s/ //g")
 load_count=$(echo "$chapters" | wc -l)
+book_name=$(echo "$main_page" | rg -P "\<h1\>" | sed "s/<h1>\(.*\)<\/h1>/\1/")
 
 if [ "$rulate_count" -ne "$load_count" ]; then 
   echo "failed parse count. Try edit regex." >&2
   exit 1
 fi
 
+echo "Name: $book_name"
 echo "Chapter count: $load_count"
 echo "Select [0 and $(("$load_count" - 1))]"
 
