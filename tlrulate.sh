@@ -71,7 +71,7 @@ rulate_count=$(echo "$main_page" | rg -A5 "Размер перевода:" | hea
 load_count=$(echo "$chapters" | wc -l)
 book_name=$(echo "$main_page" | rg -P "\<h1\>" | sed "s/<h1>\(.*\)<\/h1>/\1/")
 
-if [ "$rulate_count" -ne "$load_count" ]; then 
+if [ "$rulate_count" -ne "$load_count" ] || [ -z "$load_count" ]; then 
   echo "failed parse count. Try edit regex." >&2
   exit 1
 fi
