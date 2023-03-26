@@ -21,4 +21,4 @@ ans=$(curl --silent -L \
 url=$(echo "$ans" | jq -r ".html_url" -)
 
 echo "$url"
-echo "$url" | xclip -sel clip - 
+echo "$url" | xclip -sel clip 
