@@ -146,18 +146,19 @@ for i in $chapters; do
     continue; 
   fi
 
-  if (( "$(jobs | rg "Running" | wc -l)" >= "$MAX_JOBS" )); then
+  while (( "$(jobs | rg "Running" | wc -l)" >= "$MAX_JOBS" )); 
+  do
+    printf "true\n"
     sleep 1;
-  fi
+  done
 
   chapter_link=$(get_link "$i")
   chapter_name=$(get_name "$i")
 
-  chapter_html=$(curl --silent "$chapter_link")
   num=$(printf %0"$len"d "$counter")
   name="${num}: ${chapter_name}.pdf"
-  echo "$chapter_html" | ( wkhtmltopdf --encoding UTF-8 -q - "$name" &> /dev/null; \
-    print_status_load "$(("$counter" - "$from" + 1))" "$count_to_load" "$name" ) &
+  { curl --silent "$chapter_link" | ( wkhtmltopdf --encoding UTF-8 -q - "$name" &> /dev/null; \
+    print_status_load "$(("$counter" - "$from" + 1))" "$count_to_load" "$name" ) } &
 
   counter=$(("$counter" + 1))
 done
