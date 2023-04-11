@@ -10,6 +10,40 @@ cat <<- _EOF_
 _EOF_
 }
 
+main ()
+{
+  local data 
+
+  data=$2
+
+  if (( "$1" >= "$load_count" )); then
+    echo "$1 index is more or equal chapter count." >&2
+    exit 1
+  fi
+  if (( "$1" < 0 )); then 
+    echo "$1 index less than zero." >&2
+    exit 1
+  fi
+
+  i=0 
+  offset=2
+  for c in $chapters; do
+    diff=$(( i - data >= 0 ? i - data : data - i ))
+    if (( diff > offset )); then 
+      (( i++ ))
+      continue;
+    fi
+
+    if (( diff == 0 )); then 
+      echo -n "* "
+    fi
+
+    get_name "$c"
+
+    (( i++ ))
+  done
+}
+
 get_link () 
 {
   echo "$1" | rg -P -o "'[^\>]+" | sed "s/'//g" | sed "s/^/https:\/\/tl.rulate.ru/"
@@ -24,24 +58,6 @@ get_name ()
 print_status_load () 
 {
   printf "% ${len}d/%s | '%s'\n" "$1" "$2" "$3"
-}
-
-min ()
-{
-  if (( "$1" > "$2" )); then 
-    echo "$2"
-  else
-    echo "$1"
-  fi
-}
-
-max ()
-{
-  if (( "$1" > "$2" )); then
-    echo "$1"
-  else
-    echo "$2"
-  fi
 }
 
 MAX_JOBS=10
@@ -81,54 +97,25 @@ echo "Chapter count: $load_count"
 echo "Select [0 and $(("$load_count" - 1))]"
 
 ans="n"
-
 while [ "$ans" != "y" ]; do
-
   echo -n "from chapter: "
-  read -r from
-
-  if (( "$from" >= "$load_count" )); then
-    echo "from index is more or equal chapter count." >&2
-    exit 1
-  fi
-
-  if (( "$from" < 0 )); then 
-    echo "from index less than zero." >&2
-    exit 1
-  fi
-  
-  off=$(min 3 $(("$load_count" - "$from")) )
-  off=$(max "$off" 0)
-  echo -n "* "
-  get_name "$chapters" | head -n $(("$from" + "$off")) | tail -n "$off"
+  read -r from 
+  main "from" "$from"  
 
   echo -n "Ok? y/n: "
   read -r ans
   printf "\n"
-
 done
 
 ans="n"
-
 while [ "$ans" != "y" ]; do
-
   echo -n "to chapter: "
   read -r to
-
-  if (( "$to" < 0 )); then
-    echo "to less than 0." >&2
-    exit 1
-  fi
-  
-  selected=$(echo "$chapters" | head -n $(("$to" + 1)) | tail -n 3)
-  get_name "$selected" | head -n $(($(echo "$selected" | wc -l) - 1))
-  echo -n "* "
-  get_name "$selected" | tail -n 1
+  main "to" "$to"
 
   echo -n "Ok? y/n: "
   read -r ans
   printf "\n"
-  
 done
 
 if (( "$from" > "$to" )); then 
@@ -140,15 +127,14 @@ len=${#load_count}
 count_to_load="$(("$to" - "$from" + 1))" 
 counter=0
 for i in $chapters; do 
-  if (( "$counter" > "$to" )); then break; fi
+  (( "$counter" > "$to" )) && break
   if (( "$counter" < "$from" )); then
-    counter=$(("$counter" + 1))
+    (( counter++ ))
     continue; 
   fi
 
   while (( "$(jobs | rg "Running" | wc -l)" >= "$MAX_JOBS" )); 
   do
-    printf "true\n"
     sleep 1;
   done
 
@@ -160,7 +146,7 @@ for i in $chapters; do
   { curl --silent "$chapter_link" | ( wkhtmltopdf --encoding UTF-8 -q - "$name" &> /dev/null; \
     print_status_load "$(("$counter" - "$from" + 1))" "$count_to_load" "$name" ) } &
 
-  counter=$(("$counter" + 1))
+  (( counter++ ))
 done
 
 while [ -n "$(jobs | rg -o "Running")" ]; do
