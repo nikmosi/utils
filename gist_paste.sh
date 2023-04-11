@@ -1,3 +1,4 @@
+#!/bin/bash
 # GIT_GIST_TOKEN
 
 file_name="$1"
