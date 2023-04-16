@@ -28,7 +28,8 @@ main ()
   i=0 
   offset=2
   for c in $chapters; do
-    diff=$(( i - data >= 0 ? i - data : data - i ))
+    diff=$(( i - data ))
+    diff=${diff/-/}
     if (( diff > offset )); then 
       (( i++ ))
       continue;
