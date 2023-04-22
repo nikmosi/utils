@@ -82,13 +82,13 @@ if [ -z "$number" ]; then
   exit 1;
 fi
 
-main_page=$(curl --silent "https://tl.rulate.ru/book/$number")
+main_page=$(curl -H 'cookie: mature=c3a2ed4b199a1a15f5a5483504c7a75a7030dc4bi%3A1%3B;' --silent "https://tl.rulate.ru/book/$number")
 chapters=$(echo "$main_page" | rg -P -o "href='$book'\>[^\<]+")
 rulate_count=$(echo "$main_page" | rg -A5 "Размер перевода:" | head -n 3 | tail -n 1 | rg -P -o "\d(\d| )+" | sed "s/ //g")
 load_count=$(echo "$chapters" | wc -l)
 book_name=$(echo "$main_page" | rg -P "\<h1\>" | sed "s/<h1>\(.*\)<\/h1>/\1/")
 
-if [ "$rulate_count" -ne "$load_count" ] || [ -z "$load_count" ]; then 
+if [ -z "$rulate_count" ] || [ -z "$load_count" ] || [ "$rulate_count" -ne "$load_count" ]; then 
   echo "failed parse count. Try edit regex." >&2
   exit 1
 fi
@@ -144,7 +144,7 @@ for i in $chapters; do
 
   num=$(printf %0"$len"d "$counter")
   name="${num}: ${chapter_name}.pdf"
-  { curl --silent "$chapter_link" | ( wkhtmltopdf --encoding UTF-8 -q - "$name" &> /dev/null; \
+  { curl -H 'cookie: mature=c3a2ed4b199a1a15f5a5483504c7a75a7030dc4bi%3A1%3B;' --silent "$chapter_link" | ( wkhtmltopdf --encoding UTF-8 -q - "$name" &> /dev/null; \
     print_status_load "$(("$counter" - "$from" + 1))" "$count_to_load" "$name" ) } &
 
   (( counter++ ))
